@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAD (Computer-Aided Design) / CAM (Computer-Aided Manufacturing) Matching Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #fbc2eb, #a18cd1);
+      color: #333;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .quiz-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      max-width: 1200px;
+      margin: 0 auto;
+      gap: 20px;
+    }
+
+    .keypoint-area, .examples-area {
+      width: 48%;
+    }
+
+    .keypoint-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    .keypoint {
+      flex: 1;
+      padding: 10px;
+      text-align: left;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .keypoint.pro {
+      background: #d1f7c4; /* Green for pros */
+    }
+
+    .keypoint.con {
+      background: #ffdab9; /* Orange for cons */
+    }
+
+    .keypoint .drop-zone {
+      width: 100%;
+      height: 50px;
+      border: 2px dashed #999;
+      border-radius: 6px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #777;
+    }
+
+    .example {
+      width: 100%;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      cursor: grab;
+      text-align: center;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .example:active {
+      cursor: grabbing;
+    }
+
+    .example.correct {
+      background: #d1f7c4;
+      pointer-events: none;
+    }
+
+    .example.wrong {
+      background: #ffd1d1;
+    }
+  </style>
+</head>
+<body>
+  <h1>CAD (Computer-Aided Design) / CAM (Computer-Aided Manufacturing) Matching Quiz</h1>
+  <p>Drag the correct example to its matching point!</p>
+
+  <div class="quiz-container">
+    <!-- Keypoints -->
+    <div class="keypoint-area" id="keypoints">
+      <div class="keypoint-row">
+        <div class="keypoint pro" data-id="1">
+          🎯 High precision and accuracy (CAD)(CAM)
+          <div class="drop-zone">Drop the correct example here</div>
+        </div>
+        <div class="keypoint con" data-id="2">
+          💸 Expensive software(CAD) and hardware setup cost(CAM)
+          <div class="drop-zone">Drop the correct example here</div>
+        </div>
+      </div>
+      <div class="keypoint-row">
+        <div class="keypoint pro" data-id="3">
+          🚀 Increases mass production efficiency (CAD)(CAM)
+          <div class="drop-zone">Drop the correct example here</div>
+        </div>
+        <div class="keypoint con" data-id="4">
+          ⚙️ Machines can break down (CAM)(CAD)
+          <div class="drop-zone">Drop the correct example here</div>
+        </div>
+      </div>
+      <div class="keypoint-row">
+        <div class="keypoint pro" data-id="5">
+          🖥️ Easy design file transfer and communication (CAD)
+          <div class="drop-zone">Drop the correct example here</div>
+        </div>
+        <div class="keypoint con" data-id="6">
+          📚 Requires training and expertise (CAD)(CAM)
+          <div class="drop-zone">Drop the correct example here</div>
+        </div>
+      </div>
+      <div class="keypoint-row">
+        <div class="keypoint pro" data-id="7">
+          ♻️ Reduces material waste (CAM)(CAD)
+          <div class="drop-zone">Drop the correct example here</div>
+        </div>
+        <div class="keypoint con" data-id="8">
+          💼 Can lead to job displacement (CAM)(CAD)
+          <div class="drop-zone">Drop the correct example here</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Examples -->
+    <div class="examples-area" id="examples">
+      <div class="example" draggable="true" data-id="1">
+        ⌚ Smartwatch design ensures component fit
+      </div>
+      <div class="example" draggable="true" data-id="2">
+        💻 Startups cannot afford Adobe creative suite monthly subscription
+      </div>
+      <div class="example" draggable="true" data-id="3">
+        🏭 24/7 production line for car parts
+      </div>
+      <div class="example" draggable="true" data-id="4">
+        ⚡ Automated machine malfunctions, halting production
+      </div>
+      <div class="example" draggable="true" data-id="5">
+        🛋️ UK furniture designer emails a lamp's 3D model to client in Tokyo
+      </div>
+      <div class="example" draggable="true" data-id="6">
+        🎓 CAD training needed for beginners
+      </div>
+      <div class="example" draggable="true" data-id="7">
+        🛠️ Laser cutter trims acrylic sheets with minimal waste area
+      </div>
+      <div class="example" draggable="true" data-id="8">
+        🤖 Robotic arms replace workers
+      </div>
+    </div>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/GiL3IU0mUfQ" frameborder="0" allowfullscreen></iframe>
+
+<iframe width="560" height="315" src="https://www.youtube.com/shorts/zDWAJPNdLQk" frameborder="0" allowfullscreen></iframe>
+
+  <script>
+    const examples = document.querySelectorAll(".example");
+    const dropZones = document.querySelectorAll(".drop-zone");
+
+    examples.forEach(example => {
+      example.addEventListener("dragstart", () => {
+        example.classList.add("dragging");
+      });
+
+      example.addEventListener("dragend", () => {
+        example.classList.remove("dragging");
+      });
+    });
+
+    dropZones.forEach(zone => {
+      zone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        zone.style.borderColor = "#007bff";
+      });
+
+      zone.addEventListener("dragleave", () => {
+        zone.style.borderColor = "#999";
+      });
+
+      zone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        zone.style.borderColor = "#999";
+        const draggingItem = document.querySelector(".dragging");
+        const keypointId = zone.parentElement.dataset.id;
+        const exampleId = draggingItem.dataset.id;
+
+        if (keypointId === exampleId) {
+          // Correct match
+          zone.innerHTML = draggingItem.innerHTML;
+          draggingItem.classList.add("correct");
+          draggingItem.setAttribute("draggable", "false");
+          zone.style.borderColor = "#d1f7c4";
+
+          // Remove the example from the examples area
+          draggingItem.remove();
+        } else {
+          // Incorrect match
+          draggingItem.classList.add("wrong");
+          setTimeout(() => draggingItem.classList.remove("wrong"), 500);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
