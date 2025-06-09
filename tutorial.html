@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Toolbar</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .topbar-image {
+            max-width: none;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        .toolbar-flex {
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .toolbar-container {
+            position: relative;
+            display: inline-block;
+            border: 2px solid #ccc;
+            background-color: white;
+        }
+        
+        .toolbar-image {
+            display: block;
+            width: 71px;
+            height: 345px;
+            background-image: url('tools.png');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .hover-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 71px;
+            height: 345px;
+            pointer-events: none;
+        }
+        
+        .hover-section {
+            position: absolute;
+            width: 35.5px;
+            height: 34.5px;
+            transition: background-color 0.2s ease;
+            pointer-events: all;
+            cursor: pointer;
+        }
+        
+        .hover-section:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hover-section.active {
+            border: 5px solid #00d000;
+            box-sizing: border-box;
+        }
+        
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+           
+        }
+        
+        .coordinates {
+            font-family: monospace;
+            color: #666;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .big-side-div {
+            background: #f8fafd;
+            border-radius: 10px;
+            padding: 10px 10px 6px 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        .warmup-task {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fff;
+            border-radius: 7px;
+            padding: 5px 4px 3px 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s, background 0.2s;
+            min-width: 54px;
+            cursor: pointer;
+        }
+        .warmup-task.active {
+            background: #00e676;
+        }
+        .warmup-task .toolbar-icon-crop {
+            margin-bottom: 2px;
+            border-radius: 5px;
+            background-color: #f0f7ff;
+            transition: border 0.2s, background 0.2s;
+            width: 32px;
+            height: 31px;
+        }
+        .warmup-task .toolbar-icon-crop.active {
+            border: 4px solid #00d000;
+            background-color: #eaffea;
+        }
+        .warmup-task:hover {
+            /* background: #f0f7ff; */
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .warmup-instruction-area {
+            min-height: 20px;
+            font-size: 0.97em;
+            margin-top: 6px;
+            background: #fff;
+            border-radius: 6px;
+            padding: 8px 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            color: #222;
+        }
+        .warmup-question {
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #1a73e8;
+            font-size: 1em;
+        }
+        .warmup-steps {
+            margin: 0;
+            padding-left: 16px;
+        }
+        .warmup-steps li {
+            margin-bottom: 1px;
+            line-height: 1.3;
+            font-size: 0.97em;
+        }
+        .toolbar-icon-crop {
+            width: 36px;
+            height: 35px;
+            background-image: url('tools.png');
+            background-size: 71px 345px;
+            border: 1.5px solid #bbb;
+            border-radius: 3px;
+            margin-right: 0;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: border 0.2s;
+        }
+        .toolbar-icon-crop.active {
+            border: 5px solid #00d000;
+        }
+        .warmup-title {
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 6px;
+        }
+        .warmup-instruction-area {
+            min-height: 32px;
+            font-size: 0.97em;
+            margin-top: 6px;
+        }
+        .warmup-question {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .warmup-steps {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .warmup-steps li {
+            margin-bottom: 2px;
+        }
+        .warmup-task-label b {
+            font-weight: 600;
+        }
+        .topbar-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .rel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            display: none;
+            pointer-events: none;
+        }
+        .warmup-task-images {
+            /* display: flex; */
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .warmup-task-img {
+            border-radius: 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            border: 1px solid #ddd;
+            background: #fff;
+            width: auto;
+        }
+        .topbar-marker {
+            position: absolute;
+            left: 434px;
+            top: 20px;
+            width: 9px;
+            height: 9px;
+            background: #17AA44;
+            border-radius: 50%;
+            border: 1.5px solid #fff;
+            box-shadow: 0 0 2px 1px #44ffaa;
+            z-index: 3;
+            display: none;
+            pointer-events: none;
+        }
+        .custom-tooltip {
+            position: fixed;
+            z-index: 9999;
+            display: none;
+            min-width: 220px;
+            max-width: 340px;
+            background: #fff;
+            color: #222;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+            padding: 18px 22px 16px 22px;
+            font-size: 1.08em;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.5;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            opacity: 0.97;
+        }
+        .custom-tooltip .tt-icon {
+            display: block;
+            width: 36px;
+            height: 35px;
+            background-image: url('tools.png');
+            background-size: 71px 345px;
+            border-radius: 7px;
+            margin-bottom: 8px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid #eee;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        }
+        .custom-tooltip .tt-title {
+            font-weight: 700;
+            color: #1a73e8;
+            margin-bottom: 7px;
+            font-size: 1.13em;
+            display: block;
+        }
+        .custom-tooltip .tt-desc {
+            margin-top: 0;
+            white-space: pre-line;
+        }
+        .warmup-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="topbar-wrapper">
+        <img src="topbar.png" alt="Top Bar" class="topbar-image">
+        <img src="img_tasks/task2a.png" alt="Rel Overlay" class="rel-overlay" id="rel-overlay">
+        <div id="topbar-marker" class="topbar-marker"></div>
+    </div>
+    <div id="custom-tooltip" class="custom-tooltip"></div>
+    <div class="toolbar-flex">
+    <div class="toolbar-container">
+        <div class="toolbar-image"></div>
+            <div id="section20-img" style="display:none; position:absolute; pointer-events:none;"></div>
+            <div class="hover-overlay" id="hover-overlay"></div>
+        </div>
+        <div class="big-side-div">
+            <div class="warmup-row">
+                <div class="warmup-task">
+                    <div class="warmup-task-label">Task 1 <br> choose</div>
+                    <div class="toolbar-icon-crop" style="background-position: 0px -138px;" data-step="0" title="Text icon"></div>
+                </div>
+                <div class="warmup-task">
+                    <div class="warmup-task-label">Task 2<br> choose</div>
+                    <div class="toolbar-icon-crop" style="background-position: 0px -69px;" data-step="1" title="Rectangle icon"></div>
+                </div>
+                <div class="warmup-task">
+                    <div class="warmup-task-label">Task 3<br> choose</div>
+                    <div class="toolbar-icon-crop" style="background-position: 0px 0px;" data-step="2" title="Select icon"></div>
+                </div>
+                <div class="warmup-task">
+                    <div class="warmup-task-label">Task 4<br> choose</div>
+                    <div class="toolbar-icon-crop" style="background-position: 0px -241.5px;" data-step="3" title="Vectorise icon"></div>
+                </div>
+                <div class="warmup-task">
+                    <div class="warmup-task-label">Task 5<br> choose</div>
+                    <img src="img_tasks/Fill.jpg" alt="Fill icon" style="width:36px;height:35px;margin-bottom:2px;border-radius:5px;border:1.5px solid #bbb;box-shadow:0 1px 2px rgba(0,0,0,0.04);background:#f0f7ff;">
+                </div>
+                <div class="warmup-task">
+                    <div class="warmup-task-label">Task 6<br> choose</div>
+                    <img src="img_tasks/Col.jpg" alt="Col icon" style="width:36px;height:35px;margin-bottom:2px;border-radius:5px;border:1.5px solid #bbb;box-shadow:0 1px 2px rgba(0,0,0,0.04);background:#f0f7ff;">
+                </div>
+                <div class="warmup-task">
+                    <div class="warmup-task-label">Task 7<br>time to</div>
+                    <div style="font-size: 2.1em; line-height: 1; margin-bottom: 2px;">💾</div>
+                </div>
+            </div>
+            <div class="warmup-instruction-area" id="warmup-instruction-area"></div>
+        </div>
+    </div>
+    <script>
+        const overlay = document.getElementById('hover-overlay');
+        const hoverInfo = document.getElementById('hover-info');
+        // const coordinates = document.getElementById('coordinates');
+        
+        const cols = 2;
+        const rows = 10;
+        const sectionWidth = 71 / cols;
+        const sectionHeight = 345 / rows;
+
+        let sectionNum = 1;
+        // Section names and descriptions
+        const sectionData = [
+          { name: "Select icon", description: "Select/resize/rotate things. Ctrl A to select All. Ctrl G to group things you selected. Ctrl E to explode groups. Choose 'Start edit' bottom right corner to adjust path roundness. " },
+          { name: "Circle icon", description: "Click on two positions to draw a circle path." },
+          { name: "Rectangle icon", description: "Click on two positions to draw a rectangle path." },
+          { name: "Double Path icon", description: "Set the gap then draw double path instead of just single." },
+          { name: "Text icon", description: "Click anywhere to enter text, set font, then OK." },
+          { name: "Constant Points icon", description: "Click to set points that helps you draw lines or paths accurately." },
+          { name: "Move/Copy icon", description: "Move along a line you drag to copy a selected thing many times." },
+          { name: "Vectorise icon", description: "Click to turn images you pasted into vector shapes and lines." },
+          { name: "Clip Path icon", description: "Draw a path for clipping." },
+          { name: "Zoom icon", description: "You can use this, or the zoom buttons on the right side toolbox." },
+          { name: "Single Line icon", description: "Click on two positions to make a line." },
+          { name: "Open Arc icon", description: "Click on two positions to draw a circular arc." },
+          { name: "Path icon", description: "Click to add new dots to draw a path. Hold and drag to make parts curvy." },
+          { name: "Boundary Fill icon", description: "Fill colour in a shape." },
+          { name: "Draw Parallel icon", description: "Click on two positions to define a line to draw any lines parallel to that." },
+          { name: "Contour icon", description: "Set the gap then click near a path to add lines around its outside/inside." },
+          { name: "Align icon", description: "Select things to align them left or right, etc." },
+          { name: "Draw Isometric icon", description: "Click to turn a path from front view to isometric view." },
+          { name: "Clip icon", description: "Click on a clip path to trim/mask things inside/outside that path." },
+          { name: "Delete icon", description: "Delete any object you click" }
+        ];
+
+        function jumpToTool(toolNumber) {
+          const time = toolTimestamps[toolNumber] || 0;
+          document.querySelector('.big-side-div iframe').src =
+            `https://www.youtube.com/embed/EGtweKAfcqw?cc_load_policy=1&start=${time}&autoplay=1`;
+        }
+
+        for (let col = 0; col < cols; col++) {
+            for (let row = 0; row < rows; row++) {
+                const left = col * sectionWidth;
+                const top = row * sectionHeight;
+                const right = left + sectionWidth;
+                const bottom = top + sectionHeight;
+
+                const div = document.createElement('div');
+                div.className = 'hover-section';
+                div.style.left = `${left}px`;
+                div.style.top = `${top}px`;
+                div.setAttribute('data-section', sectionNum);
+                div.setAttribute('data-coords', `${left},${top} to ${right},${bottom}`);
+                // Remove title, use JS tooltip
+                div.removeAttribute('title');
+                div.dataset.ttName = sectionData[sectionNum-1]?.name || '';
+                div.dataset.ttDesc = sectionData[sectionNum-1]?.description || '';
+
+                div.addEventListener('mouseenter', function(e) {
+                    // Show custom tooltip
+                    const tooltip = document.getElementById('custom-tooltip');
+                    const name = this.dataset.ttName;
+                    const desc = this.dataset.ttDesc;
+                    const left = parseFloat(this.style.left) || 0;
+                    const top = parseFloat(this.style.top) || 0;
+                    const iconHTML = `<span class='tt-icon' style="background-position: -${left}px -${top}px;"></span>`;
+                    tooltip.innerHTML =
+                        iconHTML + `<span class='tt-title'>${name}</span><span class='tt-desc'>${desc.replace(/\. /g, '.<br>')}</span>`;
+                    tooltip.style.display = 'block';
+                    // Position tooltip near the hovered section
+                    const rect = this.getBoundingClientRect();
+                    const topPos = rect.top + window.scrollY + rect.height + 8;
+                    let leftPos = rect.left + window.scrollX + rect.width/2 - 120;
+                    if (leftPos < 10) leftPos = 10;
+                    tooltip.style.top = topPos + 'px';
+                    tooltip.style.left = leftPos + 'px';
+                });
+                div.addEventListener('mouseleave', function() {
+                    // Hide custom tooltip
+                    const tooltip = document.getElementById('custom-tooltip');
+                    tooltip.style.display = 'none';
+                });
+
+                overlay.appendChild(div);
+                sectionNum++;
+            }
+        }
+
+        // Toggle del2.png on section 20
+        const section20Img = document.getElementById('section20-img');
+        let section20Visible = false;
+        overlay.addEventListener('click', function(e) {
+            if (e.target.classList.contains('hover-section') && e.target.getAttribute('data-section') === '20') {
+                section20Visible = !section20Visible;
+                if (section20Visible) {
+                    // Get position and size
+                    const left = e.target.style.left;
+                    const top = e.target.style.top;
+                    const width = e.target.offsetWidth + 'px';
+                    const height = e.target.offsetHeight + 'px';
+                    section20Img.style.left = left;
+                    section20Img.style.top = top;
+                    section20Img.style.width = width;
+                    section20Img.style.height = height;
+                    section20Img.style.display = 'block';
+                    section20Img.innerHTML = '<img src="del2.png" style="width:100%;height:100%;">';
+                    // Change hover title to 'Delete Intersection icon'
+                    e.target.dataset.ttName = 'Delete Intersection icon';
+                    e.target.dataset.ttDesc = 'Delete any intersected path you click';
+                } else {
+                    section20Img.style.display = 'none';
+                    section20Img.innerHTML = '';
+                    // Revert hover title to 'Delete icon'
+                    e.target.dataset.ttName = 'Delete icon';
+                    e.target.dataset.ttDesc = 'Delete any object you click';
+                }
+            }
+        });
+
+        // Warmup icon click logic
+        // Map warmup icon index to toolbar section number (1-based)
+        const warmupToSection = [5, 3, 1, 8, 0, 0]; // Update as needed for each warmup step
+        const warmupInstructions = [
+            {
+                question: "How to add text",
+                steps: [
+                    "Click anywhere on your canvas to add text.",
+                    "Enter your text.",
+                    "Click Settings to change font.",
+                    "Click OK/Press Enter."
+                ]
+            },
+            {
+                question: "How to draw a rectangle/square",
+                steps: [
+                    "Click on canvas where you want your shape's bottom left corner to be.",
+                    "Click Abs to make it Rel.",
+                    "Enter 190 in both boxes. (if your piece is 190mm x 190mm square)",
+                    "Click OK/Press Enter."
+                ]
+            },
+            {
+                question: "How to select/resize",
+                steps: [
+                    "Click to select anything on canvas.",
+                    "Drag the centre yellow dot to move them.",
+                    "Drag the corner yellow dots to resize. (so text is within the square)"
+                ]
+            },
+            {
+                question: "How to vectorise pasted images",
+                steps: [
+                    "Click to select any line art image you pasted (Ctrl+V).",
+                    "Wait for it to process. Then choose Monochrome.",
+                    "Adjust Luminance.",
+                    "Click OK/Press Enter.<br>(Vector images can be scaled infinitely, unlike pixel images)"
+                ]
+            },
+            {
+                question: "How to unfill all shapes",
+                steps: [
+                    "Drag over things or Press <b>Ctrl+A</b> to select all.",
+                    "Click Fill then choose no fill. (Because laser can only do lines)",
+                    "Click OK/Press Enter."
+                ]
+            },
+            {
+                question: "How to set line colour",
+                steps: [
+                    "Drag over things or Press <b>Ctrl+A</b> to select all.",
+                    "Click Col next to Line then choose <span style='color:#e53935;'>red to laser engrave</span>/ black to laser cut.",
+                    "Click OK/Press Enter."
+                ]
+            },
+            {
+                question: "How to save",
+                steps: [
+                    "Press Ctrl S to save it to document.",
+                    "File name should be your student name.",
+                    "Upload it as your class assignment."
+                ]
+            }
+        ];
+        const warmupTasks = document.querySelectorAll('.warmup-task');
+        const warmupInstructionArea = document.getElementById('warmup-instruction-area');
+        // On page load, select Task 1 by default
+        let relOverlayTimer = null;
+        const warmupTaskImages = [
+            ['img_tasks/task1a.jpg', 'img_tasks/task1b.jpg'], // Task 1
+            ['img_tasks/task2a.png'], // Task 2
+            ['img_tasks/task3a.jpg'], // Task 3
+            ['img_tasks/task4a.jpg', 'img_tasks/task4b.jpg'], // Task 4
+            ['img_tasks/task5a.jpg'], // Task 5
+            ['img_tasks/task6a.jpg'], // Task 6
+            [] // Task 7
+        ];
+        function selectWarmupTask(idx) {
+            warmupTasks.forEach(i => i.classList.remove('active'));
+            document.querySelectorAll('.hover-section').forEach(i => i.classList.remove('active'));
+            // No more bolding of label text
+            // Remove green border from all icons
+            document.querySelectorAll('.warmup-task .toolbar-icon-crop').forEach(icon => icon.classList.remove('active'));
+            // Show instruction
+            warmupTasks[idx].classList.add('active');
+            // Add green border to icon in selected task
+            const iconInTask = warmupTasks[idx].querySelector('.toolbar-icon-crop');
+            if (iconInTask) iconInTask.classList.add('active');
+            // No more bolding of label text
+            const info = warmupInstructions[idx];
+            warmupInstructionArea.innerHTML =
+              `<div class=\"warmup-question\">${info.question}</div>` +
+              `<ul class=\"warmup-steps\">` +
+              info.steps.map(step => `<li>${step}</li>`).join('') +
+              `</ul>`;
+            // Show images for the selected task
+            const images = warmupTaskImages[idx] || [];
+            if (images.length > 0) {
+                warmupInstructionArea.innerHTML +=
+                  '<div class="warmup-task-images">' +
+                  images.map(src => `<img src="${src}" class="warmup-task-img" alt="Task image">`).join('') +
+                  '</div>';
+            }
+            // Highlight the mapped toolbar section (if mapped)
+            const sectionNum = warmupToSection[idx];
+            if (sectionNum > 0) {
+                const section = document.querySelector('.hover-section[data-section="' + sectionNum + '"]');
+                if(section) section.classList.add('active');
+            }
+            // Toggle rel.png overlay for Task 2
+            const relOverlay = document.getElementById('rel-overlay');
+            if (relOverlayTimer) {
+                clearInterval(relOverlayTimer);
+                relOverlayTimer = null;
+            }
+            relOverlay.style.display = 'none';
+            if (idx === 1) { // Task 2 (index 1)
+                let visible = false;
+                relOverlayTimer = setInterval(() => {
+                    visible = !visible;
+                    relOverlay.style.display = visible ? 'block' : 'none';
+                }, 500);
+            }
+            // Show/hide and position topbar marker for Task 2, 5, 6
+            const topbarMarker = document.getElementById('topbar-marker');
+            if (window.topbarMarkerFlashTimer) {
+                clearInterval(window.topbarMarkerFlashTimer);
+                window.topbarMarkerFlashTimer = null;
+            }
+            if (topbarMarker) {
+                if (idx === 1) { // Task 2
+                    topbarMarker.style.display = 'block';
+                    topbarMarker.style.left = '40px';
+                    topbarMarker.style.top = '20px';
+                } else if (idx === 4) { // Task 5
+                    topbarMarker.style.display = 'block';
+                    topbarMarker.style.left = '560px';
+                    topbarMarker.style.top = '20px';
+                } else if (idx === 5) { // Task 6
+                    topbarMarker.style.display = 'block';
+                    topbarMarker.style.left = '426px';
+                    topbarMarker.style.top = '20px';
+                } else {
+                    topbarMarker.style.display = 'none';
+                    topbarMarker.style.opacity = '1';
+                }
+                // Flashing effect
+                if (idx === 1 || idx === 4 || idx === 5) {
+                    let flashVisible = true;
+                    window.topbarMarkerFlashTimer = setInterval(() => {
+                        flashVisible = !flashVisible;
+                        topbarMarker.style.opacity = flashVisible ? '1' : '0.2';
+                    }, 500);
+                } else {
+                    topbarMarker.style.opacity = '1';
+                }
+            }
+        }
+        // Initial selection
+        selectWarmupTask(0);
+        warmupTasks.forEach(function(task, idx) {
+            task.onclick = function() { selectWarmupTask(idx); };
+        });
+    </script>
+</body>
+</html>
